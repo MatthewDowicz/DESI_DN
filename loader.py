@@ -1,1 +1,5 @@
-from PT_files.save_load import NERSC_load as load
+import numpy as np
+
+def load(fname):
+    dat = np.load('/data17/grenache/staudt/desi/'+fname)
+    return dat
