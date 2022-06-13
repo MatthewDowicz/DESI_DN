@@ -59,49 +59,64 @@ def grid_window(dataset,
         calculations.
     """
     
+    # Create 2 arrays of same size. full takes the denoised pixel values
+    # and count keeps track of how many times an individual pixel has
+    # inference ran on it
     full = np.empty((1, 1, 6000, 6000))
     count = np.empty((1, 1, 6000, 6000))
     
+    # Get the noisy image data 
     noise_data = dataset[0]
     params_name = model_params
     
+    # Get the correct patht to the moodel weights
     current_dir = pathlib.Path().resolve()
     model_params_path = current_dir / 'Model_params'
     assert model_params_path.exists()
     model_path = model_params_path / params_name
-    # print('Check pt 1')
     
+    # Instantiate the model, put it onto the GPU, load the weights
+    # of the trained model, and then set the model into evaluation mode
+    # for inference.
     model = model()
     model.to(device)
     model.load_state_dict(torch.load(str(model_path)))
     model.eval()
-    # print('Check pt 2')
 
-    
+    # Turn off gradient tracking so as to not update
+    # the model weights
     with torch.no_grad():
                 
+        # Delete any remaining memory, turn the sub_image patch numpy array
+        # into a torch tensor, so as to be compatible with the model, and
+        # then put the data onto the GPU so as to be in the same place as 
+        # the model.
         torch.cuda.empty_cache()
         test_noise = torch.as_tensor(noise_data[samp_idx:samp_idx+1, :, h_start:h_end, w_start:w_end])
         test_noise = test_noise.to(device)
-        # print('Check pt 3')
 
-        
+        # Run the model on the noisy images, then detach the output from
+        # the GPU and put it onto CPU while making it into a numpy array.
+        # Delete 'output' so as to save memory
         output = model(test_noise)
         resid_img = output.detach().cpu().numpy()
         del output
-        # print('Check pt 4')
         
+        # Same as above more or less
         test_noise.detach().cpu()
         torch.cuda.empty_cache()
         del test_noise
         
+        # We get the values that the denoised patch corresponds to in the
+        # larger 'full' image and replaces the values of 'full' with the
+        # denoised values. We also 'count' which pixels had inference ran
+        # on them.
         full[:, :, h_start:h_end, w_start:w_end] += resid_img
         count[:, :, h_start:h_end, w_start:w_end] += 1
         
+        # Deleting things to save memory.
         torch.cuda.empty_cache()
-        del resid_img
-        # print('Run finished')
-        
+        del resid_img        
         
     return full, count
 
@@ -143,19 +158,31 @@ def full_img_pass(dataset,
         calculations.
     """
     
-   
+    # Get size of the patch that we'll be running inference on.
+    # Usually it will be 2000x2000. Then we see how many times our
+    # patch fits within the full 6000x6000 image.
     inf_patch_size = window_size
     inf_patch_length = int(len(dataset[0][0][0]) / inf_patch_size)
 
+    # We then create the indices of where one inference patch ends and
+    # the other one begins and save those tuples together in a list for
+    # use later.
     window_end_idx = []
     for k in range(inf_patch_length):
         window_end_idx.append(inf_patch_size*(k))
     window_end_idx.append(len(dataset[0][0][0])) # appends endpt ie. 6k
 
     # Full image pass
+    # Instantiate 2 arrays of 6000x6000 for saving the denoised inference
+    # patches in the correct location within the full 6k by 6k image, as 
+    # well as counting which pixels have inference ran on them.
     full = np.empty((1, 1, 6000, 6000))
     count = np.empty((1, 1, 6000, 6000))
 
+    # Loop through the patch indices, so as to create a loop that runs 
+    # inference on non-overlapping regions of the full 6000x6000 image.
+    # For a 2k by 2k patch we'd run this the model 9 times to cover the
+    # FVC image.
     for j in range(len(window_end_idx)-1):
         for i in range(len(window_end_idx)-1):
 
@@ -407,16 +434,14 @@ def afterburner(dataset,
     """
     
    
-    # print('Percent of GPU memory used:', torch.cuda.memory_allocated()/torch.cuda.max_memory_allocated() )
-    # print('Beginning of Afterburner function')
+
     full_v, count_v = vertical_inf_pass(dataset=dataset,
                         model=model,
                         model_params=model_params,
                         samp_idx=samp_idx,
                         window_size=window_size,
                         window_move_dist=window_move_dist)
-    # print('Percent of GPU memory used:', torch.cuda.memory_allocated()/torch.cuda.max_memory_allocated() )
-    # print("Vertical pass completed")
+
 
     
     full_h, count_h = horizontal_inf_pass(dataset=dataset,
@@ -426,8 +451,6 @@ def afterburner(dataset,
                         window_size=window_size,
                         window_move_dist=window_move_dist)
     
-    # print('Percent of GPU memory used:', torch.cuda.memory_allocated()/torch.cuda.max_memory_allocated() )
-    # print("Horizontal pass completed")
     
     full, count = full_img_pass(dataset=dataset,
                         model=model,
@@ -435,8 +458,6 @@ def afterburner(dataset,
                         samp_idx=samp_idx,
                         window_size=window_size)
     
-    # print('Percent of GPU memory used:', torch.cuda.memory_allocated()/torch.cuda.max_memory_allocated() )
-    # print("Full img pass completed")
 
     
     tot_full = full + full_v + full_h
