@@ -190,7 +190,8 @@ def np_Conv2d(input_data, weights_dict, prefix, im2col_mat, col_prefix):
         
     elif len(input_data.shape) == 3:
         
-        input_data = input_data.reshape((1, 1, 2000 , 2000))
+        # Change this code
+        input_data = input_data.reshape((1, 1, 2020 , 2020))
         batch_size, input_channels, height, width = input_data.shape # (N, Cin, Hin, Win)
 
 
