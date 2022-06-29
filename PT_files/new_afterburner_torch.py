@@ -2,6 +2,8 @@ import numpy as np
 import torch
 from torch import nn
 import pathlib
+from PT_files.model import DnCNN_B
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def grid_window(dataset,
@@ -66,11 +68,21 @@ def grid_window(dataset,
     noise_data = np.pad(noise_data, ((0,0), (0, 0), (padding, padding), (padding, padding)))
     params_name = model_params
     
-    # Get the correct patht to the moodel weights
-    current_dir = pathlib.Path().resolve()
-    model_params_path = current_dir / 'Model_params'
-    assert model_params_path.exists()
-    model_path = model_params_path / params_name
+    # Code to call the weights file that is within my pscratch directory:
+    # # Get the correct path to the moodel weights
+    # current_dir = pathlib.Path().resolve()
+    # model_params_path = current_dir / 'Model_params'
+    # assert model_params_path.exists()
+    # model_path = model_params_path / params_name
+    
+    # Get correct path to the model weights on shared diredctory
+    # This is an interim shared directory & will update once David sends me
+    # the new path that will be used in fpoffline.
+    PATH = pathlib.Path('/global/cfs/cdirs/desi/users/mdowicz/denoising_files')
+    model_path = PATH / model_params
+    assert model_path.exists()
+    
+    
     
     # Instantiate the model, put it onto the GPU, load the weights
     # of the trained model, and then set the model into evaluation mode
@@ -110,7 +122,11 @@ def grid_window(dataset,
     return resid_img
 
 
-def full_pass_torch(data, model, model_params, patch_size=2000, padding=10):
+def torch_burner(data,
+                 model=DnCNN_B,
+                 model_params='2k_model_bs64_e800_ps50_Adam.pth',
+                 patch_size=2000,
+                 padding=10):
     """
     Function that uses a sliding window to run inference over the full FVC
     image. There is some overlap (~10 pixels) depending on the location of
@@ -177,10 +193,14 @@ def full_pass_torch(data, model, model_params, patch_size=2000, padding=10):
                                         # the img, but we need to pad both.
                                         # so the *2 accounts for both sides
             
+            # Cut the padding we started with, so as to have just pure FVC 
+            # pixels.
             denoised_patch = denoised_patch[:, :, 10:-10, 10:-10]
             
+            # Save the pixels in the correct image location
             full[:, :, window_end_idx[i]:window_end_idx[i+1],
                  window_end_idx[j]:window_end_idx[j+1]] += denoised_patch
 
-
-    return full
+    # Save just the H,W dimensions of the denoised FVC image. Don't need the
+    # sample/channel dimensions
+    return full[0][0]
