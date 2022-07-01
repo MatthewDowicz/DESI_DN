@@ -28,6 +28,7 @@ This repository contains my scripts and Jupyter Notebooks that
 - Denoises DESI FVC images in two different packages:
     - Pytorch for speed
     - Numpy for stability.
+    
 The .py scripts do most of the work, that said, certain notebooks do a some work namely: `00_Front_Illuminated.ipynb`, `01_Full_training_flow.ipynb`, `03_WB_sweep.ipynb`, `07_np_arr_creation.ipynb`, and `12_finalizing_scripts_work.ipynb`. The notebooks make use of certain .py scripts, but are the main engine due to their ease of testing. Most of the notebooks will eventually be put into scripts, but as of right now they are not.
 
 ## Most Important Scripts
