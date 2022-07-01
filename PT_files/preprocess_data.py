@@ -20,7 +20,8 @@ def create_data_sets(data: np.array,
     dataset = (Number of samples, number of channels, height, width)
     
     NOTE: This is done so the data can be used in a Pytorch
-          Dataloader object.
+          Dataloader object. This file should not be used in the production
+          version of the Pytorch Denoiser used in fpoffline.
           
     Parameters:
     -----------
@@ -29,26 +30,20 @@ def create_data_sets(data: np.array,
                                   sample_height, sample_width)
             
             data[idx]: Noisy data samples (idx=0) & 
-                       clean data samples (idx=1)
-                       
+                       clean data samples (idx=1)       
     train_size: int
         Size of the training set.
-        
     test_size: int
         Size of the test set.
-        
     training_set_name: str
         Name that will be saved for this training set.
-        
         Convention:
         -----------
         test_dataXXX-XXXX.npy
             XXX - number of samples
             XXXX - size of a individual sample
-        
     test_set-name: str
         Name that will be saved for this test set.
-        
         Convention:
         -----------
         test_dataXXX-XXXX.npy
@@ -108,26 +103,20 @@ def create_full_img_data_sets(data: np.array,
                                   sample_height, sample_width)
             
             data[idx]: Noisy data samples (idx=0) & 
-                       clean data samples (idx=1)
-                       
+                       clean data samples (idx=1)    
     train_size: int
         Size of the training set.
-        
     test_size: int
         Size of the test set.
-        
     training_set_name: str
         Name that will be saved for this training set.
-        
         Convention:
         -----------
         test_dataXXX-XXXX.npy
             XXX - number of samples
             XXXX - size of a individual sample
-        
     test_set-name: str
         Name that will be saved for this test set.
-        
         Convention:
         -----------
         test_dataXXX-XXXX.npy

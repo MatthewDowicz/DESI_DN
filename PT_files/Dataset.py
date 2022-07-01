@@ -5,52 +5,6 @@ import numpy as np
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-
-# class Img_Dataset(Dataset):
-#     def __init__(self, data_set, patch_size, width, height, seed=1234):
-#         self.data_set = data_set
-#         self.patch_size = patch_size
-#         self.width = width
-#         self.height = height
-#         self.seed = seed
-
-#     def __len__(self):
-#         return len(self.data_set[0])
-    
-#     def __shape__(self):
-#         return self.data_set.shape
-
-#     def __getitem__(self, idx):
-#         data = self.data_set
-#         image = data[0, idx]
-#         label = data[1, idx]
-        
-#         patch_size = self.patch_size
-#         seed = self.seed
-#         rng = np.random.RandomState(seed)
-
-       
-#         img_width = self.width
-#         img_height = self.height
-        
-#         #randomly crop patch from training set
-#         x1 = rng.randint(img_width - patch_size)
-#         y1 = rng.randint(img_height - patch_size)
-#         S = (slice(y1, y1 + patch_size), slice(x1, x1 + patch_size))
-        
-#         # create new arrays for training patchs
-#         image_patch = image[0][S]
-#         label_patch = label[0][S]
-        
-#         # add new axis to act as channel dimension that is necessary
-#         # for use with pytorch models/layers
-#         image_patch = image_patch[np.newaxis, :, :]
-#         label_patch = label_patch[np.newaxis, :, :]
-        
-#         image = torch.from_numpy(image_patch).float().cuda(device)
-#         label = torch.from_numpy(label_patch).float().cuda(device)
-            
-#         return image, label
     
 class Img_Dataset(Dataset):
     def __init__(self, data_set, patch_size, width, height, seed=1234):

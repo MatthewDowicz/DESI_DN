@@ -3,7 +3,8 @@ from scipy import signal
 import time 
 
 #ORIGINAL NUMPY LAYERS. USED IN GETTING THE INTERMEDIATE 
-#INDEX MATRICES AS WELL AS THE FULL IM2COL MATRICES
+#INDEX MATRICES AS WELL AS THE FULL IM2COL MATRICES. 
+# These are NOT used in the actual model to denoise the FVC images.
 
 # Activations
 relu = lambda x: np.maximum(0, x)

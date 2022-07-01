@@ -9,6 +9,9 @@ The values described below while describing `PT_files/afterburner_torch.py` is a
 
 This houses multiple variants of DnCNN, but the most important/used model is DnCNN_B. This script just creates the model as well as allows for forward pass of the model to be conducted, ie. allows for images to be denoised. Even though DnCNN outputs the residual image the implementation already does the subtraction of the residual image from the input image to give us the denoised image. This was done for ease of use rather than mis-implemntation of the model.
 
+## PT_files/preprocess_data.py
+Given the raw data taken from the DESI Focal Plane Pipeline on NERSC preprocess the data into PyTorch compatible format, that is (N,C,H,W), as well as create training and test sets of user specified sizes.
+
 ### PT_files/Dataset.py
 This creates the PyTorch compatible Dataset objects for our numpy saved data. 
 
